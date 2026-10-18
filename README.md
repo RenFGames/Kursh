@@ -1,30 +1,25 @@
-<img width="1001" height="657" alt="QQ_1792311487161" src="https://github.com/user-attachments/assets/d93e6ca1-f6e6-46b2-8ab5-3a23aee83415" />![正在上传 QQ_1792311487161.png…]()
+<img width="1001" height="657" alt="QQ_1792311487161" src="https://github.com/user-attachments/assets/4e217efd-fc2d-4d6c-bda4-704ca3d65ed9" />
+
 # Kursh
 
-适用于 Windows 平台单人模式 Unity 游戏的存档编辑器。
+A save file editor for single-player Unity games on Windows.
 
-Unity 将大部分保存数据以 JSON 格式存储在`%USERPROFILE%\AppData\LocalLow\<company>\<product>`.
-Kursh 会定位该文件夹，解析其中的文件，并允许您直接编辑数值字段。它从不
-触及正在运行的游戏——您在游戏关闭时编辑存档，然后重新启动游戏。
+Unity keeps most save data as JSON under `%USERPROFILE%\AppData\LocalLow\<company>\<product>`.
+Kursh finds that folder, parses the files, and lets you edit numeric fields directly. It never
+touches the running game — you edit the save while the game is closed, then start it again.
 
-##为什么不进行内存编辑
+## Usage
 
-向游戏内存写入数据的效果一直有效，直到游戏在下一次重新计算该数值时为止
-帧，或者直到你重启且地址已发生变化。保存编辑则不存在这个问题：该
-文件才是事实的来源，更改在重启后依然有效。
-
-##使用方法
-
-1.关闭游戏。
-2.运行`Kursh.exe`.
-3.将游戏文件夹（即包含GameName_Data`的文件夹）粘贴到这里，或点击“浏览”，然后扫描存档**
-4.从下拉菜单中选择一个存档。
-5.找到该字段：输入其名称的一部分（, `metal`）或其值的一部分（`
-整数`/浮点数布尔值芯片与运算符框（=,><1000~5000≈)
-进一步缩小范围。
-6.双击**新值**单元格，输入数字，按回车键。
-7.点击**保存**。文件旁边会先生成一个`.kursh.bak`备份文件。
-8.启动游戏并加载该存档。
+1. Close the game.
+2. Run `Kursh.exe`.
+3. Paste the game folder (the one containing `GameName_Data`) or click Browse, then **Scan Saves**.
+4. Pick a save from the dropdown.
+5. Find the field: type part of its name (`pop`, `metal`) or part of its value (`3509`).
+   The `int` / `float` / `bool` chips and the operator box (`=`, `>`, `<`, `1000~5000`, `≈`)
+   narrow it down further.
+6. Double-click the **New value** cell, type the number, press Enter.
+7. Click **Save**. A `.kursh.bak` backup is written next to the file first.
+8. Start the game and load the save.
 
 ## Notes
 
