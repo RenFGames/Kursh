@@ -1,0 +1,513 @@
+package yudxx.kursh.i18n;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
+public final class T {
+
+    private static final Map<String, String> EN = new HashMap<>();
+    private static boolean chinese;
+
+    static {
+        String configured = null;
+        try {
+            File file = configFile();
+            if (file.exists()) {
+                Properties properties = new Properties();
+                try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+                    properties.load(reader);
+                }
+                configured = properties.getProperty("lang");
+            }
+        } catch (Throwable ignored) {
+        }
+        if ("zh".equalsIgnoreCase(configured)) {
+            chinese = true;
+        } else if ("en".equalsIgnoreCase(configured)) {
+            chinese = false;
+        } else {
+            chinese = Locale.getDefault().getLanguage().toLowerCase(Locale.ROOT).startsWith("zh");
+        }
+        build(EN);
+    }
+
+    private T() {
+    }
+
+    public static boolean isChinese() {
+        return chinese;
+    }
+
+    public static void setChinese(boolean value) {
+        chinese = value;
+        try {
+            Properties properties = new Properties();
+            properties.setProperty("lang", value ? "zh" : "en");
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(configFile()), StandardCharsets.UTF_8)) {
+                properties.store(writer, "Kursh");
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    public static String t(String cn) {
+        if (cn == null) return "";
+        if (chinese) return cn;
+        String en = EN.get(cn);
+        return en == null ? cn : en;
+    }
+
+    public static String f(String cn, Object... args) {
+        return String.format(t(cn), args);
+    }
+
+    private static File configFile() {
+        String appData = System.getenv("APPDATA");
+        if (appData == null || appData.isEmpty()) {
+            appData = System.getProperty("user.home");
+        }
+        File dir = new File(appData, "Kursh");
+        if (!dir.exists()) dir.mkdirs();
+        return new File(dir, "config.properties");
+    }
+
+    private static void put(Map<String, String> map, String cn, String en) {
+        map.put(cn, en);
+    }
+
+    private static void build(Map<String, String> map) {
+        put(map, "单机游戏存档编辑器 · v1.0", "Save editor · v1.0");
+        put(map, "存档", "Saves");
+        put(map, "单机游戏存档编辑器", "Save editor");
+        put(map, "自动定位 Unity 存档目录，解析 JSON 字段。改完保存，关掉游戏重新打开即可。", "Finds Unity save folders and parses the JSON fields. Save, then restart the game.");
+        put(map, "撤回修改", "Revert");
+        put(map, "已撤回 %d 项修改", "Reverted %d edits");
+        put(map, "字段已恢复成存档里的原值", "Fields restored to the values in the save file");
+        put(map, "能做什么", "WHAT IT DOES");
+        put(map, "自动定位 Unity 存档目录，读取 app.info 拼接 LocalLow 路径", "Finds Unity save folders automatically via app.info + LocalLow");
+        put(map, "递归解析 JSON，数千字段毫秒级展开，名称与数值双重搜索", "Recursive JSON parser; thousands of fields in milliseconds, search by name or value");
+        put(map, "原地改写：只替换数字字符，不动缩进、顺序与其它字段", "In-place rewrite: only the digits change, indentation and other fields stay intact");
+        put(map, "保存前自动备份 .kursh.bak，随时一键还原", "Automatic .kursh.bak backup before every save, one-click restore");
+        put(map, "目标文件可能不可写", "The target file may be read-only");
+        put(map, "全部", "All");
+        put(map, "按名称或数值搜索，例如 metal 或 3509", "Search name or value, e.g. metal or 3509");
+        put(map, "区间", "Range");
+        put(map, "显示 %d 项", "showing %d");
+        put(map, "浏览", "Browse");
+        put(map, "扫描存档", "Scan Saves");
+        put(map, "存档文件", "Save file");
+        put(map, "备份", "Backup");
+        put(map, "还原", "Restore");
+        put(map, "保存修改", "Save");
+        put(map, "字段", "Field");
+        put(map, "新值", "New value");
+        put(map, "未加载存档", "No save loaded");
+        put(map, "选择游戏根目录", "Choose game folder");
+        put(map, "游戏根目录，例如 E:////Games////MyGame", "Game folder, e.g. E:////Games////MyGame");
+        put(map, "按名称过滤字段，支持模糊匹配", "Filter fields by name");
+        put(map, "只列出数值字段，改完点保存", "Numeric fields only; save when done");
+        put(map, "选择游戏目录后点击扫描存档", "Pick the game folder, then hit Scan Saves");
+        put(map, "请先选择游戏目录", "Pick the game folder first");
+        put(map, "目录不存在", "Folder does not exist");
+        put(map, "没有找到该游戏的存档目录", "No save folder found for this game");
+        put(map, "未找到存档目录", "Save folder not found");
+        put(map, "存档目录里没有可解析的文件：", "No parsable files in: ");
+        put(map, "没有找到可解析的存档文件", "No parsable save files found");
+        put(map, "存档目录：", "Save folder: ");
+        put(map, " 个存档文件", " save files");
+        put(map, "该文件不是 JSON 存档，暂不支持解析", "This file is not JSON; parsing unsupported");
+        put(map, "解析失败：", "Parse failed: ");
+        put(map, "存档解析失败", "Save parsing failed");
+        put(map, "已解析 %d 个数值字段", "Parsed %d numeric fields");
+        put(map, "请先选择一个存档", "Select a save file first");
+        put(map, "备份失败", "Backup failed");
+        put(map, "已备份到 ", "Backed up to ");
+        put(map, "请先扫描并选择存档", "Scan and select a save first");
+        put(map, "没有找到备份文件", "No backup found");
+        put(map, "已还原到备份状态", "Restored from backup");
+        put(map, " 不是布尔值", " is not a boolean");
+        put(map, " 不是有效数字", " is not a valid number");
+        put(map, "没有改动需要保存", "Nothing changed");
+        put(map, "备份失败，已取消写入", "Backup failed; write cancelled");
+        put(map, "写入失败，文件可能被占用", "Write failed; the file may be in use");
+        put(map, "已保存 %d 项 · 关闭游戏后重新打开即可看到变化", "Saved %d changes · restart the game to see them");
+        put(map, "关于", "About");
+        put(map, "已写入 ", "Wrote ");
+        put(map, "允许 ±2% 误差，用于显示值被取整的情况", "Allow a ±2% tolerance, for values that are rounded in the UI");
+        put(map, "模糊", "Fuzzy");
+        put(map, "调节", "Adjust");
+        put(map, "全改锁定", "Lock All");
+        put(map, "全部锁定", "Lock everything");
+        put(map, "已锁定 %d 个地址", "Locked %d addresses");
+        put(map, "对当前 %d 个候选写入同一值并锁定，游戏覆盖时会被自动写回", "Write one value to all %d candidates and keep them locked; overwrites are reverted automatically");
+        put(map, "当前值只在拖动时写入", "Value is written while you drag");
+        put(map, "先选中一行候选", "Select a candidate row first");
+        put(map, "这个数值可能是堆里动态分配的，没有模块内的静态根节点。可以换一个更靠前的数值（比如关卡编号）再试。", "This value is most likely heap-allocated with no static root inside any module. Try an earlier value, such as a level id.");
+        put(map, "面向单机游戏的内存扫描与修改工具。多类型识别、快速修改、地址锁定、模块分析与十六进制查看。", "An offline game memory scanner and editor. Multi-type detection, quick editing, address locking, module analysis and a hex viewer.");
+        put(map, "根节点在模块内，重启游戏后依然有效。选中一条加入地址表，之后读写会自动沿指针链解析。", "The root sits inside a module, so it survives restarts. Pick one and add it to the table; reads and writes follow the chain automatically.");
+        put(map, "补丁用于改写指令字节，例如把 8B 45 F8 改成 90 90 90", "Patches rewrite instruction bytes, for example turning 8B 45 F8 into 90 90 90");
+        put(map, "0x7FF6A2C01234 或 game.exe+0x1A2B", "0x7FF6A2C01234 or game.exe+0x1A2B");
+        put(map, "特征码，例如 8B 45 ?? 89 45，?? 表示通配字节", "Signature, e.g. 8B 45 ?? 89 45 — ?? is a wildcard");
+        put(map, "应用前会校验该地址的原始字节，不匹配会拒绝写入，避免改坏指令", "Original bytes are verified before writing; a mismatch aborts so code is never corrupted");
+        put(map, "等待识别 · 自动匹配整数 / 浮点 / 短整型 / 字节", "Ready · matches int / float / short / byte automatically");
+        put(map, "仅供单机游戏学习与研究使用，请勿用于联机游戏或商业用途。", "For offline game learning and research only. Do not use in online games or commercially.");
+        put(map, "没有匹配项，换一个数值类型或让数值在游戏内变化后再试", "No match. Try another type, or change the value in game and scan again.");
+        put(map, "）。重建会重新遍历全部内存，通常需要 5~30 秒。", "). Rebuilding walks all memory and usually takes 5-30 seconds.");
+        put(map, "地址格式不正确，示例 0x7FF6A2C01234", "Invalid address, e.g. 0x7FF6A2C01234");
+        put(map, "当前指令与原始字节不符，可能已被修改过，已拒绝写入", "Current bytes do not match the originals; write refused.");
+        put(map, "输入数值后点击智能识别，自动列出所有可能的内存位置", "Enter a value and hit Identify to list every possible location");
+        put(map, "输入游戏里显示的数值，例如 1234 或 12.5", "Enter the value shown in game, e.g. 1234 or 12.5");
+        put(map, "双击结果可复制地址，用于填写下方代码补丁的地址栏", "Double-click a result to copy its address into the patch field below");
+        put(map, "没有识别到候选，试试勾选「未对齐」或换一个数值", "No candidates. Try enabling Unaligned scanning or another value.");
+        put(map, "特征码格式不正确，示例：8B 45 ?? 89", "Invalid signature, e.g. 8B 45 ?? 89");
+        put(map, "该地址当前内容与填写的原始字节不符，已拒绝添加", "The bytes at this address do not match the originals; refused.");
+        put(map, "结果较多，回到游戏改变数值后点击再次扫描", "Many results. Change the value in game, then hit Next Scan.");
+        put(map, " 个地址，但数值都已变化，建议重建索引", " addresses, but all values changed. Rebuild the index.");
+        put(map, "字节格式不正确，示例：8B 45 F8", "Invalid byte format, e.g. 8B 45 F8");
+        put(map, "尚无扫描结果，输入数值后点击首次扫描", "No results yet. Enter a value and hit First Scan.");
+        put(map, "开始指针扫描，通常需要 3~10 秒", "Pointer scan started, usually takes 3-10 seconds");
+        put(map, "无法读取进程列表，请以管理员身份运行", "Cannot read the process list. Run as administrator.");
+        put(map, " ms · 双击「修改为」直接写入", " ms · double-click Set to for an instant write");
+        put(map, "地址表为空，双击扫描结果或手动添加", "Table is empty. Double-click a result or add one manually.");
+        put(map, "下限~上限，例如 100~200", "min~max, e.g. 100~200");
+        put(map, "通用游戏内存修改器 · v1.0", "Save editor · v1.0");
+        put(map, "只读视图 · 每行 16 字节", "Read-only · 16 bytes per row");
+        put(map, "补丁写入失败，目标页可能不可写", "Patch failed. The target page may be read-only.");
+        put(map, "，请右键以管理员身份运行本工具", ", run this tool as administrator");
+        put(map, "全局扫描：正在建立数值索引…", "Global scan: building value index…");
+        put(map, "原始字节与新字节长度必须一致", "Original and new byte counts must match");
+        put(map, "就绪 · 选择进程后开始扫描", "Ready · pick a process to start");
+        put(map, "索引已过期，命中地址全部失效", "Index expired; every matched address went stale.");
+        put(map, "补丁已添加，点击「应用」生效", "Patch added. Click Apply to enable it.");
+        put(map, " 锁定失败，地址可能已失效", " lock failed, the address may be stale");
+        put(map, "已附加 · 可以扫描并修改", "Attached · ready to scan and edit");
+        put(map, "该地址不可读取，可能已释放", "Address unreadable, possibly freed");
+        put(map, "请先在扫描结果里选中若干行", "Select some rows in the results first");
+        put(map, "还原失败，目标页可能不可写", "Revert failed. The target page may be read-only.");
+        put(map, "字符串类型仅支持精确匹配", "Text only supports exact match");
+        put(map, "根节点（模块 + 偏移）", "Root (module + offset)");
+        put(map, "点击右侧按钮载入内存区域", "Click Load to list memory regions");
+        put(map, "请先在列表中选择一个进程", "Pick a process from the list first");
+        put(map, "附加进程后显示已加载模块", "Modules appear after attaching");
+        put(map, " 个已变值候选，剩余 ", " changed candidates removed, ");
+        put(map, "请输入游戏里显示的数值", "Enter the value shown in game");
+        put(map, " 个地址写入同一个值", " addresses to the same value");
+        put(map, " 个重复数值，剩余 ", " duplicate values merged, ");
+        put(map, "先填入有效数值再锁定", "Set a valid value before locking");
+        put(map, "双击结果可加入地址表", "Double-click a result to add it to the table");
+        put(map, "合并重复完成，剩余 ", "Duplicates merged, remaining ");
+        put(map, "已附加 · 仅可读取", "Attached · read-only");
+        put(map, "搜索进程名或窗口标题", "Search process or window title");
+        put(map, "特征码扫描完成 · ", "Signature scan done · ");
+        put(map, "精确筛选需要输入数值", "Exact filter needs a value");
+        put(map, "请先在地址表选中一行", "Select a row in the table first");
+        put(map, "请先填入要修改的数值", "Enter a value first");
+        put(map, "请先选中地址表中的行", "Select rows in the table first");
+        put(map, "输入特征码后点击扫描", "Enter a signature and hit Scan");
+        put(map, "Kursh 地址表", "Kursh Address Table");
+        put(map, "全部写入成功，共 ", "All writes succeeded, ");
+        put(map, "原字节 8B 45", "orig 8B 45");
+        put(map, "双击模块可复制基址", "Double-click a module to copy its base");
+        put(map, "当前进程已有索引（", "This process already has an index (");
+        put(map, "扫描进行中，请稍候", "Scan in progress, please wait");
+        put(map, "指针扫描完成 · ", "Pointer scan done · ");
+        put(map, "新字节 90 90", "new 90 90");
+        put(map, "未知值无需输入数值", "No input needed for an unknown value");
+        put(map, "正在读取进程列表…", "Reading process list…");
+        put(map, "没有可修改的整数项", "No integer entries to modify");
+        put(map, "请先选择一条指针链", "Pick a pointer chain first");
+        put(map, "请输入要搜索的数值", "Enter a value to scan");
+        put(map, "选中行没有有效地址", "The selected row has no valid address");
+        put(map, "附近没有解析到名称", "No name found nearby");
+        put(map, " 个地址，其中 ", " addresses, ");
+        put(map, "关于 Kursh", "About Kursh");
+        put(map, "只列出已提交区域", "Committed regions only");
+        put(map, "地址 0x...", "Address 0x...");
+        put(map, "已加入指针条目：", "Pointer entry added: ");
+        put(map, "扫描完成，找到 ", "Scan complete, ");
+        put(map, "正在按条件筛选…", "Filtering…");
+        put(map, "没有可加入的结果", "No results to add");
+        put(map, "没有可撤销的修改", "Nothing to undo");
+        put(map, "没有找到静态指针", "No static pointers found");
+        put(map, "补丁已应用 · ", "Patch applied · ");
+        put(map, "请先执行首次扫描", "Run First Scan first");
+        put(map, "请先附加一个进程", "Attach a process first");
+        put(map, "输入要搜索的数值", "Enter a value");
+        put(map, "还没有候选可合并", "No candidates to merge");
+        put(map, "还没有候选可筛选", "No candidates to filter");
+        put(map, "进程列表读取失败", "Failed to read the process list");
+        put(map, " · 即时返回", " · instant");
+        put(map, " · 显示前 ", " · showing first ");
+        put(map, " 个候选 · ", " candidates · ");
+        put(map, " 个地址 · ", " addresses · ");
+        put(map, " 个数值 / ", " values / ");
+        put(map, " 个数值 · ", " values · ");
+        put(map, " 个结果 · ", " results · ");
+        put(map, "地址格式不正确", "Invalid address");
+        put(map, "已保留现有索引", "Kept the existing index");
+        put(map, "已加入地址表：", "Added to table: ");
+        put(map, "数值格式不正确", "Invalid number");
+        put(map, "正在扫描内存…", "Scanning memory…");
+        put(map, "正在识别候选…", "Identifying candidates…");
+        put(map, "正在遍历内存…", "Walking memory…");
+        put(map, "特征码扫描中…", "Signature scan running…");
+        put(map, "索引完成 · ", "Index ready · ");
+        put(map, "请先选择候选行", "Select candidate rows first");
+        put(map, "，改用实时扫描", ", falling back to a live scan");
+        put(map, " · 可读写", " · read/write");
+        put(map, " 个可读区域", " readable regions");
+        put(map, " 数值 · ", " values · ");
+        put(map, "从地址表定位", "Locate from table");
+        put(map, "刷新进程列表", "Refresh process list");
+        put(map, "十六进制视图", "Hex view");
+        put(map, "地址不可读取", "Address unreadable");
+        put(map, "地址表已清空", "Table cleared");
+        put(map, "将对选中的 ", "Write the same value to ");
+        put(map, "已复制基址 ", "Copied base ");
+        put(map, "已还原 · ", "Reverted · ");
+        put(map, "手动添加地址", "Add address manually");
+        put(map, "正在附加到 ", "Attaching to ");
+        put(map, "索引里没有 ", "The index has no ");
+        put(map, "结果已达上限", "Result limit reached");
+        put(map, "请先附加进程", "Attach a process first");
+        put(map, "重建全局索引", "Rebuild global index");
+        put(map, " · 只读", " · read-only");
+        put(map, " · 读写", " · read/write");
+        put(map, " 个仍为 ", " still equal ");
+        put(map, " 个数值、", " values, ");
+        put(map, " 条指针链", " pointer chains");
+        put(map, "0 个结果", "0 results");
+        put(map, "例如 金币", "e.g. Gold");
+        put(map, "全局扫描：", "Global scan: ");
+        put(map, "加入地址表", "Add to Table");
+        put(map, "地址表为空", "Table is empty");
+        put(map, "完成 · ", "Done · ");
+        put(map, "导入地址表", "Import table");
+        put(map, "导入失败：", "Import failed: ");
+        put(map, "导出地址表", "Export table");
+        put(map, "导出失败：", "Export failed: ");
+        put(map, "已分离进程", "Process detached");
+        put(map, "批量写入 ", "Batch write ");
+        put(map, "指针扫描：", "Pointer scan: ");
+        put(map, "未建立索引", "no index");
+        put(map, "未附加进程", "Not attached");
+        put(map, "清空地址表", "Clear table");
+        put(map, "特征码扫描", "Signature");
+        put(map, "筛掉已变值", "Prune");
+        put(map, "索引命中 ", "Index hit ");
+        put(map, "索引完成：", "Index ready: ");
+        put(map, "还原失败：", "Revert failed: ");
+        put(map, "附加到进程", "Attach Process");
+        put(map, "附加异常：", "Attach error: ");
+        put(map, " 个候选", " candidates");
+        put(map, " 个名称", " names");
+        put(map, " 个地址", " addresses");
+        put(map, " 个模块", " modules");
+        put(map, " 个结果", " results");
+        put(map, " 分钟前", " min ago");
+        put(map, " 已复制", " copied");
+        put(map, " 已解锁", " unlocked");
+        put(map, " 已锁定", " locked");
+        put(map, " 条地址", " entries");
+        put(map, "%d 个", "%d");
+        put(map, "32 位", "32-bit");
+        put(map, "64 位", "64-bit");
+        put(map, "不可访问", "No access");
+        put(map, "代码补丁", "Code Patch");
+        put(map, "全局扫描", "Global Scan");
+        put(map, "全部写入", "Write All");
+        put(map, "全部加入", "Add All");
+        put(map, "再次扫描", "Next Scan");
+        put(map, "再筛条件", "Filter");
+        put(map, "写入失败", "Write failed");
+        put(map, "分离进程", "Detach");
+        put(map, "刷新模块", "Refresh");
+        put(map, "原始字节", "Original");
+        put(map, "合并重复", "Dedupe");
+        put(map, "已修改 ", "Modified ");
+        put(map, "已刷新 ", "Refreshed ");
+        put(map, "已加入 ", "Added ");
+        put(map, "已合并 ", "Merged ");
+        put(map, "已复制 ", "Copied ");
+        put(map, "已导入 ", "Imported ");
+        put(map, "已导出 ", "Exported ");
+        put(map, "已添加 ", "Added ");
+        put(map, "已筛除 ", "Pruned ");
+        put(map, "已解析 ", "Resolved ");
+        put(map, "已还原 ", "Reverted ");
+        put(map, "已附加 ", "Attached ");
+        put(map, "快速修改", "Quick Edit");
+        put(map, "手动添加", "Add");
+        put(map, "扫描中…", "Scanning…");
+        put(map, "扫描结果", "Results");
+        put(map, "批量写入", "Batch Write");
+        put(map, "智能识别", "Identify");
+        put(map, "模块偏移", "Module");
+        put(map, "正在索引", "Indexing");
+        put(map, "特征码：", "Signature: ");
+        put(map, "目标数值", "Value");
+        put(map, "目标进程", "Target Process");
+        put(map, "解析名称", "Name");
+        put(map, "识别到 ", "Found ");
+        put(map, "载入区域", "Load");
+        put(map, "附加失败", "Attach failed");
+        put(map, "首次扫描", "First Scan");
+        put(map, "，跳过 ", ", skipped ");
+        put(map, " 秒前", "s ago");
+        put(map, "0 个", "0");
+        put(map, "主模块", "Main module");
+        put(map, "修改为", "Set to");
+        put(map, "候选 ", "Candidate ");
+        put(map, "写入 ", "Write ");
+        put(map, "写入值", "Target");
+        put(map, "剩余 ", "Remaining ");
+        put(map, "只读区", "Read-only");
+        put(map, "可修改", "Writable");
+        put(map, "地址表", "Table");
+        put(map, "已分离", "Detached");
+        put(map, "已应用", "Applied");
+        put(map, "当前值", "Current");
+        put(map, "找到 ", "Found ");
+        put(map, "找指针", "Pointers");
+        put(map, "指针链", "Pointer chain");
+        put(map, "新字节", "New");
+        put(map, "无窗口", "No window");
+        put(map, "未对齐", "Unaligned");
+        put(map, "未应用", "Not applied");
+        put(map, "未附加", "Not attached");
+        put(map, " 个", "");
+        put(map, " 项", " items");
+        put(map, "上限", "limit");
+        put(map, "优先", "Pin");
+        put(map, "作者", "Author");
+        put(map, "保护", "Protect");
+        put(map, "共 ", "Total ");
+        put(map, "关闭", "Close");
+        put(map, "内存", "Memory");
+        put(map, "写入", "Write");
+        put(map, "删除", "Delete");
+        put(map, "取消", "Cancel");
+        put(map, "只读", "Read-only");
+        put(map, "可写", "Writable");
+        put(map, "名称", "Name");
+        put(map, "地址", "Address");
+        put(map, "基址", "Base");
+        put(map, "复制", "Copy");
+        put(map, "大小", "Size");
+        put(map, "失效", "Stale");
+        put(map, "失败", "Failed");
+        put(map, "就绪", "Ready");
+        put(map, "层级", "Depth");
+        put(map, "应用", "Apply");
+        put(map, "微信", "WeChat");
+        put(map, "扫描", "Scan");
+        put(map, "描述", "Note");
+        put(map, "撤销", "Undo");
+        put(map, "操作", "Action");
+        put(map, "数值", "Value");
+        put(map, "更多", "More");
+        put(map, "未知", "Unknown");
+        put(map, "权限", "Access");
+        put(map, "架构", "Arch");
+        put(map, "模块", "Modules");
+        put(map, "正常", "OK");
+        put(map, "添加", "Add");
+        put(map, "清空", "Clear");
+        put(map, "状态", "Status");
+        put(map, "确定", "OK");
+        put(map, "空闲", "Idle");
+        put(map, "类型", "Type");
+        put(map, "结束", "End");
+        put(map, "起始", "Start");
+        put(map, "路径", "Path");
+        put(map, "跳转", "Go");
+        put(map, "还原", "Revert");
+        put(map, "重建", "Rebuild");
+        put(map, "重置", "Reset");
+        put(map, "锁定", "Lock");
+        put(map, "高级", "Advanced");
+        put(map, "否", "No");
+        put(map, "是", "Yes");
+        put(map, "字节", "Byte");
+        put(map, "2 字节", "Short");
+        put(map, "4 字节整数", "Int");
+        put(map, "8 字节整数", "Long");
+        put(map, "单精度浮点", "Float");
+        put(map, "双精度浮点", "Double");
+        put(map, "字符串", "Text");
+        put(map, "精确值", "Exact");
+        put(map, "未知初始值", "Unknown");
+        put(map, "大于", "Greater");
+        put(map, "小于", "Less");
+        put(map, "区间内", "Between");
+        put(map, "精确等于", "Equals");
+        put(map, "变大了", "Increased");
+        put(map, "变小了", "Decreased");
+        put(map, "发生变化", "Changed");
+        put(map, "没有变化", "Unchanged");
+        put(map, "无访问", "No access");
+        put(map, "可读写", "Read/write");
+        put(map, "写时复制", "Write copy");
+        put(map, "仅执行", "Execute");
+        put(map, "执行读", "Exec/read");
+        put(map, "执行读写", "Exec/read/write");
+        put(map, "执行写复制", "Exec/write copy");
+        put(map, "映像", "Image");
+        put(map, "映射", "Mapped");
+        put(map, "私有", "Private");
+        put(map, "已提交", "Committed");
+        put(map, "未提交", "Uncommitted");
+        put(map, "尚未附加进程", "Not attached to any process");
+        put(map, "没有可写入的数据", "Nothing to write");
+        put(map, "写入异常：", "Write error: ");
+        put(map, "只能写入部分数据（", "Only partial write (");
+        put(map, " 字节），目标页可能只读", " bytes), the page may be read-only");
+        put(map, "写入失败，系统未返回错误码", "Write failed without a system error code");
+        put(map, "访问被拒绝：进程受保护或权限不足，请以管理员身份运行", "Access denied: the process is protected or privileges are missing. Run as administrator.");
+        put(map, "句柄无效：目标进程可能已退出", "Invalid handle: the target may have exited");
+        put(map, "参数无效：地址或长度不被接受", "Invalid parameter: address or length rejected");
+        put(map, "部分写入失败：目标页只读或跨页保护", "Partial write: page is read-only or guarded");
+        put(map, "地址无效或已被释放，需要重新扫描", "Address invalid or freed; rescan needed");
+        put(map, "地址不可访问：数据位于不可写页", "Address not accessible: data sits in a non-writable page");
+        put(map, "写入失败，错误码 ", "Write failed, error code ");
+        put(map, "写入后读回不一致，目标内存可能被反向保护", "Read-back mismatch; the memory may be guarded");
+        put(map, "写入返回成功但读取校验失败，地址可能已被释放", "Write reported success but read-back failed; the address may be freed");
+        put(map, "指针链已失效，基址或偏移可能已改变", "Pointer chain broken; base or offset changed");
+        put(map, "地址不可用", "Address unavailable");
+        put(map, "不可读", "Unreadable");
+        put(map, "改回 ", "reverted ");
+        put(map, "扫描已取消", "Scan cancelled");
+        put(map, "没有可扫描的内存区域，请确认进程仍在运行", "No scannable memory. Check that the process is still running.");
+        put(map, "可扫描内存为 0", "Scannable memory is 0");
+        put(map, "扫描异常：", "Scan error: ");
+        put(map, "筛选异常：", "Filter error: ");
+        put(map, "识别异常：", "Identify error: ");
+        put(map, "全局扫描异常：", "Global scan error: ");
+        put(map, "区间格式不正确，示例：100~200", "Invalid range, e.g. 100~200");
+        put(map, "结果已达上限 ", "Result limit reached: ");
+        put(map, "，请缩小范围或改用更精确的条件", ", narrow the range or refine the condition");
+        put(map, "筛选完成", "Filter complete");
+        put(map, "识别完成", "Identify complete");
+        put(map, "全局索引完成", "Global index ready");
+        put(map, "索引已达上限（", "Index limit reached (");
+        put(map, " 地址），后续内存未收录，可用「智能识别」直接实时扫描", " addresses). Remaining memory was skipped; use Identify for a live scan.");
+        put(map, "指针扫描异常：", "Pointer scan error: ");
+        put(map, "目标进程已改变", "The target process changed");
+        put(map, " 级指针扫描…", "-level pointer scan…");
+        put(map, "第 ", "Level ");
+        put(map, " 级 · ", " · ");
+        put(map, "没有找到静态指针，数值可能在堆里动态分配", "No static pointer found; the value is probably heap-allocated");
+        put(map, "没有匹配的特征码", "Signature not found");
+        put(map, "匹配 ", "Matched ");
+        put(map, " 处", " locations");
+        put(map, "特征码扫描异常：", "Signature scan error: ");
+    }
+}
