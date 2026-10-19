@@ -10,7 +10,9 @@ import yudxx.kursh.ui.MainView;
 public class KurshApp {
 
     public static final String APP_NAME = "Kursh";
-    public static final String APP_SUB = "v1.0";
+    public static final String APP_VERSION = "1.0.0";
+    public static final String APP_DISPLAY = "v1 Pro";
+    public static final String APP_SUB = "SAVE & MEMORY EDITOR";
 
     private static MainView current;
 
